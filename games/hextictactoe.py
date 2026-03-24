@@ -5,6 +5,7 @@ import json
 import os
 from game import Game, Outcome
 from emojis import emojis, emoji_numbers, emoji_letters
+from coordinate_parser import parse_single_coordinate
 
 class HexTicTacToeGame(Game):
     def __init__(self, player1, player2, settings):
@@ -23,43 +24,21 @@ class HexTicTacToeGame(Game):
     def parse_move_string(self, move):
         if not isinstance(move, str):
             return None
-        move = move.strip().lower()
-        if len(move) == 0:
-            return None
-        parts = move.split()
+        parts = move.strip().lower().split()
         if len(parts) == 0 or len(parts) > 2:
             return None
-
-        def parse_single(p):
-            if len(p) < 2:
-                return None
-            col_char = p[0]
-            if col_char < 'a' or col_char > 'z':
-                return None
-            try:
-                row_num = int(p[1:])
-            except ValueError:
-                return None
-            col = ord(col_char) - ord('a')
-            row = row_num - 1
-            if 0 <= col < self.settings["width"] and 0 <= row < self.settings["height"]:
-                return (row, col)
-            return None
-
         coords = []
         for p in parts:
-            coord = parse_single(p)
+            coord = parse_single_coordinate(p, self.settings["width"], self.settings["height"])
             if coord is None:
                 return None
             coords.append(coord)
-
         if len(coords) == 1:
             return coords[0]
         return coords
 
     def get_move_format_instructions(self):
-        max_col = chr(ord('a') + self.settings["width"] - 1)
-        return f"Enter two coordinates separated by a space, each being a column letter (a-{max_col}) followed by a row number (1-{self.settings['height']}) (e.g., 'a1 b2')."
+        return "Enter two coordinates separated by a space (e.g., 'a1 b2')."
 
     def is_formatted_move(self, move):
         return self.parse_move_string(move) is not None

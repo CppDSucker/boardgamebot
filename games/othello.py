@@ -5,6 +5,7 @@ import json
 import os
 from game import Game, Outcome
 from emojis import emojis, emoji_numbers, emoji_letters
+from coordinate_parser import parse_single_coordinate
 
 class OthelloGame(Game):
     def __init__(self, player1, player2, settings):
@@ -35,21 +36,7 @@ class OthelloGame(Game):
     def parse_move_string(self, move):
         if not isinstance(move, str):
             return None
-        move = move.strip().lower()
-        if len(move) < 2:
-            return None
-        col_char = move[0]
-        if col_char < 'a' or col_char > 'z':
-            return None
-        try:
-            row_num = int(move[1:])
-        except ValueError:
-            return None
-        col = ord(col_char) - ord('a')
-        row = row_num - 1
-        if 0 <= col < self.settings["width"] and 0 <= row < self.settings["height"]:
-            return (row, col)
-        return None
+        return parse_single_coordinate(move.strip(), self.settings["width"], self.settings["height"])
 
     def _flips_for_move(self, row, col, piece):
         if self.gameboard[row][col] != self.empty_piece:
@@ -69,8 +56,7 @@ class OthelloGame(Game):
         return flips
 
     def get_move_format_instructions(self):
-        max_col = chr(ord('a') + self.settings["width"] - 1)
-        return f"Enter a column letter (a-{max_col}) followed by a row number (1-{self.settings['height']}) (e.g., 'a1')."
+        return "Enter a coordinate (e.g., 'a1')."
 
     def is_formatted_move(self, move):
         return self.parse_move_string(move) is not None
