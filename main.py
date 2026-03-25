@@ -103,13 +103,20 @@ class Handler:
         except Exception as excep:
             pass
 
-    async def handle_message(message):
+    async def send_help_message(self, channel):
+        available_games = []
+        for filename in os.listdir("games"):
+            if filename.endswith(".py"):
+                available_games.append(filename[:-3])
+        await channel.send(f"Start a game with \"!gamename\". For example, \"!connect4\" opens an invitation to a Connect 4 game.\nAvailable games: {', '.join(available_games)}")
+
+    async def handle_message(self, message):
         if message.author == client.user:
             return
         message_content = message.content.lower()
 
         if len(message_content) > 0 and message_content[0] != "!":
-            handle_potential_move(message)
+            await self.handle_potential_move(message)
 
         if len(message_content) == 0 or message_content[0] != "!":
             return
@@ -122,11 +129,7 @@ class Handler:
         arguments = message_content.split()[1:]
 
         if command == "help":
-            available_games = []
-            for filename in os.listdir("games"):
-                if filename.endswith(".py"):
-                    available_games.append(filename[:-3])
-            await message.channel.send(f"Start a game with \"!gamename\". For example, \"!connect4\" opens an invitation to a Connect 4 game.\nAvailable games: {', '.join(available_games)}")
+            await self.send_help_message(message.channel)
         elif command == "leaderboard":
             await message.channel.send(elo_manager.get_leaderboard())
         else:
@@ -147,7 +150,7 @@ class Handler:
             elif command == "hex":
                 module = hex
             else:
-                await message.channel.send("Invalid game type: " + command)
+                await self.send_help_message(message.channel)
                 return
             game_type = command
             (success, settings, failure_message) = module.parse_settings(arguments)
@@ -172,9 +175,9 @@ class Handler:
                 "game_type": game_type,
                 "settings": settings,
             }
-            id_game_dict[open_msg.id] = self_entry
+            self.id_game_dict[open_msg.id] = self_entry
 
-    async def handle_potential_move(message):
+    async def handle_potential_move(self, message):
         message_content = message.content.lower()
 
         # Find a game for which it's the author's turn.
