@@ -6,6 +6,7 @@ import games.othello as othello
 import games.gomoku as gomoku
 import games.hextictactoe as hextictactoe
 import games.hex as hex
+import games.grort as grort
 
 import os
 from elo_manager import elo_manager
@@ -49,6 +50,8 @@ class Handler:
             class_type = hex.HexGame
         elif reacted_entry["game_type"] == "hextictactoe":
             class_type = hextictactoe.HexTicTacToeGame
+        elif reacted_entry["game_type"] == "grort":
+            class_type = grort.GrortGame
         new_game = class_type(player1, player2, reacted_entry["settings"])
 
         print(f"Starting new game between {player1.name} and {player2.name} with settings: {reacted_entry['settings']}")
@@ -149,6 +152,8 @@ class Handler:
                 module = hextictactoe
             elif command == "hex":
                 module = hex
+            elif command == "grort":
+                module = grort
             else:
                 await self.send_help_message(message.channel)
                 return
