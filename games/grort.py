@@ -11,7 +11,7 @@ class GrortGame(Game):
     def __init__(self, player1, player2, settings):
         Game.__init__(self, player1, player2, settings)
         self.last_move = None
-        self.game_type = "Snort"
+        self.game_type = "Grort"
         self.add_reactions = False
         self.swap_enabled = True
         self.gameboard = [[self.empty_piece for w in range(self.settings["width"])] for h in range(self.settings["height"])]

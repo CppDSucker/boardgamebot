@@ -116,6 +116,7 @@ class Handler:
     async def handle_message(self, message):
         if message.author == client.user:
             return
+
         message_content = message.content.lower()
 
         if len(message_content) > 0 and message_content[0] != "!":
@@ -184,6 +185,21 @@ class Handler:
 
     async def handle_potential_move(self, message):
         message_content = message.content.lower()
+
+        if message_content in ["forfeit", "resign", "quit"]:
+            for game_id in self.id_game_dict:
+                entry = self.id_game_dict[game_id]
+                if isinstance(entry, dict):
+                    continue
+                if entry.get_player_to_move() != message.author:
+                    continue
+                game = entry
+                del self.id_game_dict[game_id]
+                game.forfeit(message.author)
+                replied_message = await message.channel.fetch_message(game_id)
+                await game.send_gameend_message(message.channel)
+                await replied_message.delete()
+                return
 
         # Find a game for which it's the author's turn.
         game = None

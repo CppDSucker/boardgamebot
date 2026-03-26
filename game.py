@@ -27,6 +27,12 @@ class Game():
     def do_swap(self):
         self.player1_piece, self.player2_piece = self.player2_piece, self.player1_piece
 
+    def forfeit(self, player):
+        if player == self.player1:
+            self.outcome = Outcome.Player2Win
+        elif player == self.player2:
+            self.outcome = Outcome.Player1Win
+
     async def send_game_message(self, channel):
         # Only ping user if it's their turn, otherwise display their name without pinging them
         player1_mention = self.player1.mention if self.turn == 1 else self.player1.name
